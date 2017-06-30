@@ -169,12 +169,12 @@ class SpreadSheet:
 
         for var in var_list:
             if var in my_list:
-                self.csvRow[var] = self.replace_greek_questionmark_with_vertical(self.csvRow[var])
+                self.csvRow[var] = self.replace_semicolon_with_vertical(self.csvRow[var])
             temp_list.append(self.csvRow[var].strip())
 
         return '||'.join(filter(None, temp_list)).strip()
 
-    def replace_greek_questionmark_with_vertical(self, var):
+    def replace_semicolon_with_vertical(self, var):
         return var.replace(';', '||')
 
 
