@@ -14,35 +14,55 @@ class SpreadSheet:
         return None
 
     def importCSV(self):
+
+
+        # self.fix_refworks_bug_with_newline_char()
+
+
         di = OrderedDict()
-        readdata = csv.reader(open("./epa.csv"))
+        # lol = list(csv.reader(open('text.txt', 'rb'), delimiter='\t'))
+        readdata = csv.reader(open('./epa.csv'), delimiter='\t')
         i=0
         for row in readdata:
-            # print (row)
-            di[i] = row
-            i += 1
 
-        # print (len(di))
+            # if i==124:
+            #     print(row)
+            # print (row)
+
+            # Only parse row if non-empty
+            if len(row) > 5:
+                di[i] = row
+                i += 1
+
+        print(len(di))
         #
         # print(di[0])
-        # print(di[1])
+        # print(di[122])
 
         # for key, value in di.items():
         #     print(str(key) + ': ' + value[2])
 
         oDi = OrderedDict()
-        j = 0
+        # j = 0
         for key, value in di.items():
+            # print(str(key) + ':::' + str(value))
+            if len(value) < 10 or str(value).startswith("['Reference Typ"):
+                # print('Empty key at: ' + str(key) + ' where value was: ' + str(value))
+                continue
             oDi[key] = {}
             self.csvRow = value
+            # print(value)
+
             # dc.type
+            self.csvRow[0] = self.csvRow[0].strip()
+            self.rename_type()
             oDi[key][0] = self.generate_repeative_fields([0])
             # dc.contributor.author
             oDi[key][1] = self.generate_repeative_fields([1, 20, 21, 22])
             # dc.title
             oDi[key][2] = self.generate_repeative_fields([2, 16])
             # dc.source
-            oDi[key][3] = self.generate_repeative_fields([3, 4])
+            oDi[key][3] = self.generate_repeative_fields([3, 4, 39])
             # if oDi[key][3]:
             #     print(oDi[key][3])
 
@@ -84,7 +104,7 @@ class SpreadSheet:
             # dc.identifier.doi
             oDi[key][21] = self.generate_repeative_fields([34])
             # dc.source
-            oDi[key][22] = self.generate_repeative_fields([38, 39])
+            # oDi[key][22] = self.generate_repeative_fields([38, 39])
 
             # dc.contributor.editor
             oDi[key][23] = self.generate_repeative_fields([15])
@@ -125,7 +145,7 @@ class SpreadSheet:
             writer.writeheader()
             for key, value in oDi.items():
                 writer.writerow({'id': '+',
-                                 'collection': '10797/21077',
+                                 'collection': '10797/23906',
                                  'dc.type': oDi[key][0],
                                  'dc.contributor.author': oDi[key][1],
                                  'dc.title': oDi[key][2],
@@ -151,11 +171,11 @@ class SpreadSheet:
                                 'dc.title.alternative': oDi[key][19],
                                 'dc.source.uri': oDi[key][20],
                                 'dc.identifier.doi': oDi[key][21],
-                                'dc.source': oDi[key][22]
+                                # 'dc.source': oDi[key][22]
                                  })
                 # print(str(key) + ': ' + value[23])
 
-    def generate_repeative_fields(self, var_list = None):
+    def generate_repeative_fields(self, var_list=None):
         # Generate a stringlist of source fields
         # my_list is a list of fields seperated with ';' by RefWorks export. They need to change to '||'
         # this happens in author fields
@@ -177,7 +197,36 @@ class SpreadSheet:
     def replace_semicolon_with_vertical(self, var):
         return var.replace(';', '||')
 
+    def rename_type(self):
+        d = {'Book, Section': 'Book chapter',
+                'Book, Whole': 'Book',
+                'Conference Proceedings': 'Conference Object',
+                'Dissertation/Thesis, Unpublished': 'Doctoral Thesis',
+                'Generic': 'other',
+                'Monograph': 'Book',
+                'Book, Edited': 'Book  edited'
+            }
 
+        if self.csvRow[0] in d.keys():
+            self.csvRow[0] = d[self.csvRow[0]]
+'''
+    def fix_refworks_bug_with_newline_char(self):
+        with open('./epa.csv', 'r') as f:
+            lines = f.readlines()
+
+            data = [len(i) for i in f]
+            line, char = len(data), sum(data)
+            print("lines: " + str(line))
+            # with open('text.txt') as the_file:
+            #     data = [len(i) for i in the_file]
+            #     line, char = len(data), sum(data)
+
+        with open('./epa.csv', 'w') as f:
+            for line in lines:
+                line = line.replace('\\n', '\n')
+                f.write(line)
+
+'''
 if __name__ == "__main__":
     try:
         obj = SpreadSheet()
