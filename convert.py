@@ -21,7 +21,7 @@ class SpreadSheet:
 
         di = OrderedDict()
         # lol = list(csv.reader(open('text.txt', 'rb'), delimiter='\t'))
-        readdata = csv.reader(open('./epa.csv'), delimiter='\t')
+        readdata = csv.reader(open('./epa.csv'))
         i=0
         for row in readdata:
 
@@ -145,7 +145,7 @@ class SpreadSheet:
             writer.writeheader()
             for key, value in oDi.items():
                 writer.writerow({'id': '+',
-                                 'collection': '10797/23906',
+                                 'collection': '10797/25078',
                                  'dc.type': oDi[key][0],
                                  'dc.contributor.author': oDi[key][1],
                                  'dc.title': oDi[key][2],
